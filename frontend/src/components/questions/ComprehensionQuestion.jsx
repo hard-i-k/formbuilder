@@ -1,167 +1,312 @@
-import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import axios from 'axios'
+import React from 'react'
+import ImageUpload from '../ImageUpload'
 
-const ViewForms = () => {
-  const [forms, setForms] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchForms()
-  }, [])
-
-  const fetchForms = async () => {
-    try {
-      const response = await axios.get('/api/forms')
-      setForms(response.data)
-    } catch (error) {
-      console.error('Error fetching forms:', error)
-    } finally {
-      setLoading(false)
-    }
+const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
+  const updateField = (field, value) => {
+    onChange({ ...question, [field]: value })
   }
 
-  const deleteForm = async (id) => {
-    if (window.confirm('Are you sure you want to delete this form? This action cannot be undone.')) {
-      try {
-        await axios.delete(`/api/forms/${id}`)
-        setForms(forms.filter(form => form._id !== id))
-      } catch (error) {
-        console.error('Error deleting form:', error)
-      }
+  const addSubQuestion = () => {
+    const newSubQuestion = {
+      questionType: 'mcq',
+      question: '',
+      options: ['', '', '', ''],
+      correctAnswer: '',
+      points: 1
     }
+    updateField('subQuestions', [...question.subQuestions, newSubQuestion])
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300">Loading your forms...</p>
-        </div>
-      </div>
-    )
+  const updateSubQuestion = (index, field, value) => {
+    const newSubQuestions = [...question.subQuestions]
+    newSubQuestions[index] = { ...newSubQuestions[index], [field]: value }
+    updateField('subQuestions', newSubQuestions)
+  }
+
+  const updateSubQuestionOption = (subIndex, optionIndex, value) => {
+    const newSubQuestions = [...question.subQuestions]
+    const newOptions = [...newSubQuestions[subIndex].options]
+    newOptions[optionIndex] = value
+    newSubQuestions[subIndex] = { ...newSubQuestions[subIndex], options: newOptions }
+    updateField('subQuestions', newSubQuestions)
+  }
+
+  const removeSubQuestion = (index) => {
+    const newSubQuestions = question.subQuestions.filter((_, i) => i !== index)
+    updateField('subQuestions', newSubQuestions)
+  }
+
+  const moveOption = (subIndex, fromIndex, toIndex) => {
+    const newSubQuestions = [...question.subQuestions]
+    const currentOptions = [...newSubQuestions[subIndex].options]
+    
+    if (toIndex < 0 || toIndex >= currentOptions.length) return
+    
+    const [movedOption] = currentOptions.splice(fromIndex, 1)
+    currentOptions.splice(toIndex, 0, movedOption)
+    
+    newSubQuestions[subIndex] = { ...newSubQuestions[subIndex], options: currentOptions }
+    updateField('subQuestions', newSubQuestions)
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-100 mb-2">Your Forms</h1>
-            <p className="text-gray-300">
-              Manage and organize all your interactive forms
-            </p>
-          </div>
-          <Link to="/create" className="btn-primary">
-            Create New Form
-          </Link>
+    <div className="question-card border-l-4 border-l-purple-500">
+      <div className="flex justify-between items-start mb-4">
+        <h3 className="text-lg font-semibold text-gray-100">Comprehension Question</h3>
+        <button
+          onClick={onDelete}
+          className="text-red-400 hover:text-red-300"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Question Title
+          </label>
+          <input
+            type="text"
+            value={question.title}
+            onChange={(e) => updateField('title', e.target.value)}
+            className="input-field"
+            placeholder="Enter question title"
+          />
         </div>
 
-        {forms.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="card max-w-md mx-auto">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-100 mb-3">No forms yet</h3>
-              <p className="text-gray-300 mb-6">
-                Get started by creating your first interactive form
-              </p>
-              <Link to="/create" className="btn-primary">
-                Create Your First Form
-              </Link>
-            </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Instructions
+          </label>
+          <textarea
+            value={question.instructions}
+            onChange={(e) => updateField('instructions', e.target.value)}
+            className="input-field"
+            rows={2}
+            placeholder="Enter instructions for the comprehension"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Passage
+          </label>
+          <textarea
+            value={question.passage}
+            onChange={(e) => updateField('passage', e.target.value)}
+            className="input-field"
+            rows={6}
+            placeholder="Enter the reading passage"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Media (Image/Video)
+          </label>
+          <ImageUpload
+            value={question.media}
+            onChange={(url) => updateField('media', url)}
+          />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Timer (minutes, 0 for no timer)
+            </label>
+            <input
+              type="number"
+              value={question.timer || ''}
+              onChange={(e) => updateField('timer', e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="input-field"
+              min="0"
+              placeholder="0 for no timer"
+            />
           </div>
-        ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {forms.map((form, index) => (
-              <div 
-                key={form._id} 
-                className="card animate-slide-up hover:scale-105 transition-transform duration-300"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                {form.headerImage && (
-                  <div className="relative mb-4 overflow-hidden rounded-xl">
-                    <img
-                      src={form.headerImage}
-                      alt={form.title}
-                      className="w-full h-40 object-cover transition-transform duration-300 hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  </div>
-                )}
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-                      {form.title}
-                    </h3>
-                    {form.description && (
-                      <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-3 leading-relaxed">
-                        {form.description}
-                      </p>
-                    )}
-                  </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Total Points
+            </label>
+            <input
+              type="number"
+              value={question.points || ''}
+              onChange={(e) => updateField('points', e.target.value === '' ? '' : parseInt(e.target.value))}
+              className="input-field"
+              min="1"
+              placeholder="Enter points"
+            />
+          </div>
+        </div>
 
-                  <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center space-x-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200">
-                        {Array.isArray(form.questions) ? form.questions.length : 0} questions
-                      </span>
+        <div>
+          <div className="flex justify-between items-center mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Sub Questions
+            </label>
+            <button
+              onClick={addSubQuestion}
+              className="text-sm text-primary-600 hover:text-primary-800"
+            >
+              + Add Question
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {question.subQuestions.map((subQuestion, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="text-md font-medium text-gray-800">
+                    Question {index + 1}
+                  </h4>
+                  <button
+                    onClick={() => removeSubQuestion(index)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Question Type
+                      </label>
+                      <select
+                        value={subQuestion.questionType}
+                        onChange={(e) => updateSubQuestion(index, 'questionType', e.target.value)}
+                        className="input-field"
+                      >
+                        <option value="mcq">Multiple Choice (Single)</option>
+                        <option value="mca">Multiple Choice (Multiple)</option>
+                        <option value="short">Short Text</option>
+                      </select>
                     </div>
-                    <span className="text-gray-500 dark:text-gray-400">
-                      {new Date(form.createdAt).toLocaleDateString()}
-                    </span>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Points
+                      </label>
+                      <input
+                        type="number"
+                        value={subQuestion.points || ''}
+                        onChange={(e) => updateSubQuestion(index, 'points', e.target.value === '' ? '' : parseInt(e.target.value))}
+                        className="input-field"
+                        min="1"
+                        placeholder="Points"
+                      />
+                    </div>
                   </div>
 
-                  <div className="flex space-x-2 pt-2">
-                    <Link
-                      to={`/form/${form._id}`}
-                      className="flex-1 text-center btn-primary text-sm py-2"
-                    >
-                      Preview
-                    </Link>
-                    <Link
-                      to={`/create?edit=${form._id}`}
-                      className="flex-1 text-center btn-secondary text-sm py-2"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => deleteForm(form._id)}
-                      className="px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 text-sm font-medium"
-                      title="Delete form"
-                    >
-                      Delete
-                    </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Question Text
+                    </label>
+                    <textarea
+                      value={subQuestion.question}
+                      onChange={(e) => updateSubQuestion(index, 'question', e.target.value)}
+                      className="input-field"
+                      rows={2}
+                      placeholder="Enter the question"
+                    />
                   </div>
+
+                  {(subQuestion.questionType === 'mcq' || subQuestion.questionType === 'mca') && (
+                    <>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Options
+                        </label>
+                        <div className="space-y-2">
+                          {subQuestion.options.map((option, optionIndex) => (
+                            <div key={optionIndex} className="flex items-center space-x-2">
+                              {/* Drag Handle */}
+                              <div className="cursor-move text-gray-400 hover:text-gray-600">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                                </svg>
+                              </div>
+                              
+                              <input
+                                type="text"
+                                value={option}
+                                onChange={(e) => updateSubQuestionOption(index, optionIndex, e.target.value)}
+                                className="input-field flex-1"
+                                placeholder={`Option ${optionIndex + 1}`}
+                              />
+                              
+                              {/* Reorder Buttons */}
+                              <div className="flex flex-col space-y-1">
+                                <button
+                                  type="button"
+                                  onClick={() => moveOption(index, optionIndex, optionIndex - 1)}
+                                  disabled={optionIndex === 0}
+                                  className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move up"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveOption(index, optionIndex, optionIndex + 1)}
+                                  disabled={optionIndex === subQuestion.options.length - 1}
+                                  className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move down"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Correct Answer
+                        </label>
+                        <select
+                          value={subQuestion.correctAnswer}
+                          onChange={(e) => updateSubQuestion(index, 'correctAnswer', e.target.value)}
+                          className="input-field"
+                        >
+                          <option value="">Select correct answer</option>
+                          {subQuestion.options.map((option, optionIndex) => (
+                            <option key={optionIndex} value={option}>
+                              {option || `Option ${optionIndex + 1}`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
-          </div>
-        )}
 
-        {forms.length > 0 && (
-          <div className="mt-16 text-center">
-            <div className="card-gradient max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Ready to create more?
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Build engaging forms with our powerful question types and interactive features
-              </p>
-              <Link to="/create" className="btn-primary">
-                ➕ Create Another Form
-              </Link>
-            </div>
+            {question.subQuestions.length === 0 && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <p className="text-gray-500 mb-2">No questions added yet</p>
+                <button
+                  onClick={addSubQuestion}
+                  className="btn-secondary text-sm"
+                >
+                  Add First Question
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
 }
 
-export default ViewForms
+export default ComprehensionQuestion

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
+
 import axios from 'axios'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 const ImageUpload = ({ value, onChange }) => {
   const [uploading, setUploading] = useState(false)
@@ -29,7 +31,7 @@ const ImageUpload = ({ value, onChange }) => {
     try {
       console.log('Uploading file:', file.name, 'Size:', file.size)
       
-      const response = await axios.post('/api/forms/upload', formData, {
+  const response = await axios.post(`${API_BASE_URL}/api/forms/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

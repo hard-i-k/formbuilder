@@ -13,9 +13,10 @@ const ViewForms = () => {
   const fetchForms = async () => {
     try {
       const response = await axios.get('/api/forms')
-      setForms(response.data)
+      setForms(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
       console.error('Error fetching forms:', error)
+      setForms([])
     } finally {
       setLoading(false)
     }
@@ -25,7 +26,7 @@ const ViewForms = () => {
     if (window.confirm('Are you sure you want to delete this form? This action cannot be undone.')) {
       try {
         await axios.delete(`/api/forms/${id}`)
-        setForms(forms.filter(form => form._id !== id))
+        setForms(Array.isArray(forms) ? forms.filter(form => form._id !== id) : [])
       } catch (error) {
         console.error('Error deleting form:', error)
       }
@@ -58,7 +59,7 @@ const ViewForms = () => {
           </Link>
         </div>
 
-        {forms.length === 0 ? (
+        {Array.isArray(forms) && forms.length === 0 ? (
           <div className="text-center py-12">
             <div className="card max-w-md mx-auto">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -77,7 +78,7 @@ const ViewForms = () => {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {forms.map((form, index) => (
+            {Array.isArray(forms) ? forms.map((form, index) => (
               <div 
                 key={form._id} 
                 className="card animate-slide-up hover:scale-105 transition-transform duration-300"
@@ -109,7 +110,7 @@ const ViewForms = () => {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center space-x-4">
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200">
-                        {form.questions.length} questions
+                        {Array.isArray(form.questions) ? form.questions.length : 0} questions
                       </span>
                     </div>
                     <span className="text-gray-500 dark:text-gray-400">
@@ -140,11 +141,11 @@ const ViewForms = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            )) : null}
           </div>
         )}
 
-        {forms.length > 0 && (
+        {Array.isArray(forms) && forms.length > 0 && (
           <div className="mt-16 text-center">
             <div className="card-gradient max-w-2xl mx-auto">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">

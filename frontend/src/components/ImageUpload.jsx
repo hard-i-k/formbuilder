@@ -6,6 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://formbuilder-backen
 const ImageUpload = ({ value, onChange }) => {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const fileInputId = `file-upload-${Math.random().toString(36).substr(2, 9)}`
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0]

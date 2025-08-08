@@ -156,7 +156,7 @@ const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
           </div>
 
           <div className="space-y-4">
-            {question.subQuestions.map((subQuestion, index) => (
+              {(Array.isArray(question.subQuestions) ? question.subQuestions : []).map((subQuestion, index) => (
               <div key={index} className="border border-gray-200 rounded-lg p-4">
                 <div className="flex justify-between items-start mb-3">
                   <h4 className="text-md font-medium text-gray-800">
@@ -221,7 +221,7 @@ const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
                           Options
                         </label>
                         <div className="space-y-2">
-                          {subQuestion.options.map((option, optionIndex) => (
+                          {(Array.isArray(subQuestion.options) ? subQuestion.options : []).map((option, optionIndex) => (
                             <div key={optionIndex} className="flex items-center space-x-2">
                               {/* Drag Handle */}
                               <div className="cursor-move text-gray-400 hover:text-gray-600">
@@ -278,7 +278,7 @@ const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
                           className="input-field"
                         >
                           <option value="">Select correct answer</option>
-                          {subQuestion.options.map((option, optionIndex) => (
+                          {(Array.isArray(subQuestion.options) ? subQuestion.options : []).map((option, optionIndex) => (
                             <option key={optionIndex} value={option}>
                               {option || `Option ${optionIndex + 1}`}
                             </option>

@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { useDrag, useDrop } from 'react-dnd'
 import axios from 'axios'
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
 // Draggable Item Component
 const DraggableItem = ({ item, index, questionIndex }) => {
   const [{ isDragging }, drag] = useDrag({
@@ -146,7 +148,7 @@ const FormPreview = () => {
 
   const fetchForm = async () => {
     try {
-      const response = await axios.get(`/api/forms/${id}`)
+      const response = await axios.get(`${API_BASE_URL}/api/forms/${id}`)
       console.log('Fetched form data:', response.data)
 
       // Debug each question
@@ -301,7 +303,7 @@ const FormPreview = () => {
   const submitAnswers = async () => {
     setSubmitting(true)
     try {
-      const response = await axios.post(`/api/forms/${id}/check-answers`, { answers })
+      const response = await axios.post(`${API_BASE_URL}/api/forms/${id}/check-answers`, { answers })
       setResults(response.data)
       setShowResults(true)
     } catch (error) {

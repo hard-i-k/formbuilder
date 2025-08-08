@@ -185,7 +185,7 @@ const FormPreview = () => {
         }
       } else if (question.type === 'comprehension') {
         initialAnswers[qIndex] = {
-          subAnswers: question.subQuestions.map(() => '')
+          subAnswers: (Array.isArray(question.subQuestions) ? question.subQuestions : []).map(() => '')
         }
       }
     })
@@ -513,7 +513,7 @@ const FormPreview = () => {
             <div>
               <h4 className="font-medium text-gray-800 mb-3">Questions:</h4>
               <div className="space-y-4">
-                {question.subQuestions.map((subQ, subIndex) => (
+                {(Array.isArray(question.subQuestions) ? question.subQuestions : []).map((subQ, subIndex) => (
                   <div key={subIndex} className="border border-gray-200 rounded-lg p-4">
                     <p className="font-medium text-gray-800 mb-2">
                       {subIndex + 1}. {subQ.question}
@@ -582,7 +582,7 @@ const FormPreview = () => {
                         }
                       } else if (question.type === 'comprehension') {
                         resetAnswer = {
-                          subAnswers: question.subQuestions.map(() => '')
+                          subAnswers: (Array.isArray(question.subQuestions) ? question.subQuestions : []).map(() => '')
                         }
                       }
 
@@ -676,7 +676,7 @@ const FormPreview = () => {
           </div>
 
           <div className="space-y-4">
-            {form.questions.map((question, index) => renderQuestion(question, index))}
+            {(Array.isArray(form.questions) ? form.questions : []).map((question, index) => renderQuestion(question, index))}
           </div>
 
           {/* Submit Section */}

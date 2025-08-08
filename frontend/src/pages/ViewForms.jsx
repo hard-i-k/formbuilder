@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+// Use the environment variable or fallback to your actual Render URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://formbuilder-backend.onrender.com';
 
 const ViewForms = () => {
   const [forms, setForms] = useState([])
@@ -14,10 +15,34 @@ const ViewForms = () => {
 
   const fetchForms = async () => {
     try {
-      const response = await axios.get('/api/forms')
+      console.log('🔍 API_BASE_URL:', API_BASE_URL)
+      console.log('🔍 Full URL:', `${API_BASE_URL}/api/forms`)
+      console.log('🔍 Environment:', import.meta.env.MODE)
+      console.log('🔍 VITE_API_URL:', import.meta.env.VITE_API_URL)
+      
+      // Add a test to see if the URL is reachable
+      const testResponse = await fetch(`${API_BASE_URL}/api/forms`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('🔍 Test fetch status:', testResponse.status);
+      console.log('🔍 Test fetch ok:', testResponse.ok);
+      
+      const response = await axios.get(`${API_BASE_URL}/api/forms`)
+      console.log('✅ Forms response:', response.data)
+      console.log('✅ Forms count:', response.data?.length)
       setForms(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
-      console.error('Error fetching forms:', error)
+      console.error('❌ Error fetching forms:', error)
+      console.error('❌ Error response:', error.response?.data)
+      console.error('❌ Error status:', error.response?.status)
+      console.error('❌ Error message:', error.message)
+      console.error('❌ Error code:', error.code)
+      
+      // Show an alert with the error for debugging
+      alert(`Error fetching forms: ${error.message}. Check console for details.`)
       setForms([])
     } finally {
       setLoading(false)
@@ -27,7 +52,7 @@ const ViewForms = () => {
   const deleteForm = async (id) => {
     if (window.confirm('Are you sure you want to delete this form? This action cannot be undone.')) {
       try {
-        await axios.delete(`/api/forms/${id}`)
+        await axios.delete(`${API_BASE_URL}/api/forms/${id}`)
         setForms(Array.isArray(forms) ? forms.filter(form => form._id !== id) : [])
       } catch (error) {
         console.error('Error deleting form:', error)

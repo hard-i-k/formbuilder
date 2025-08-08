@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import axios from 'axios'
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://formbuilder-backend.onrender.com';
 
 const ImageUpload = ({ value, onChange }) => {
   const [uploading, setUploading] = useState(false)
@@ -29,15 +29,11 @@ const ImageUpload = ({ value, onChange }) => {
 
     setUploading(true)
     try {
-      console.log('Uploading file:', file.name, 'Size:', file.size)
-      
-  const response = await axios.post(`${API_BASE_URL}/api/forms/upload`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/api/forms/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
-      
-      console.log('Upload response:', response.data)
       
       if (response.data && response.data.url) {
         onChange(response.data.url)
@@ -46,21 +42,16 @@ const ImageUpload = ({ value, onChange }) => {
         setError('Invalid response from server')
       }
     } catch (error) {
-      console.error('Error uploading image:', error)
-      
       if (error.response) {
         // Server responded with error
         const errorMessage = error.response.data?.message || 'Server error occurred'
         setError(errorMessage)
-        console.error('Server error:', error.response.data)
       } else if (error.request) {
         // Request was made but no response
         setError('No response from server. Check if backend is running.')
-        console.error('No response:', error.request)
       } else {
         // Something else happened
         setError('Upload failed: ' + error.message)
-        console.error('Upload error:', error.message)
       }
     } finally {
       setUploading(false)
@@ -94,7 +85,10 @@ const ImageUpload = ({ value, onChange }) => {
           </button>
         </div>
       ) : (
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+        <label 
+          htmlFor="file-upload" 
+          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 block"
+        >
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
             stroke="currentColor"
@@ -109,25 +103,23 @@ const ImageUpload = ({ value, onChange }) => {
             />
           </svg>
           <div className="mt-4">
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <span className="mt-2 block text-sm font-medium text-gray-900">
-                {uploading ? 'Uploading...' : 'Upload an image'}
-              </span>
-              <span className="mt-1 block text-xs text-gray-500">
-                PNG, JPG, GIF up to 5MB
-              </span>
-              <input
-                id="file-upload"
-                name="file-upload"
-                type="file"
-                className="sr-only"
-                accept="image/*"
-                onChange={handleFileUpload}
-                disabled={uploading}
-              />
-            </label>
+            <span className="mt-2 block text-sm font-medium text-gray-900">
+              {uploading ? 'Uploading...' : 'Click anywhere here to upload an image'}
+            </span>
+            <span className="mt-1 block text-xs text-gray-500">
+              PNG, JPG, GIF up to 5MB
+            </span>
           </div>
-        </div>
+          <input
+            id="file-upload"
+            name="file-upload"
+            type="file"
+            className="sr-only"
+            accept="image/*"
+            onChange={handleFileUpload}
+            disabled={uploading}
+          />
+        </label>
       )}
     </div>
   )

@@ -14,17 +14,17 @@ const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
       correctAnswer: '',
       points: 1
     }
-    updateField('subQuestions', [...question.subQuestions, newSubQuestion])
+  updateField('subQuestions', [...(Array.isArray(question.subQuestions) ? question.subQuestions : []), newSubQuestion])
   }
 
   const updateSubQuestion = (index, field, value) => {
-    const newSubQuestions = [...question.subQuestions]
+  const newSubQuestions = [...(Array.isArray(question.subQuestions) ? question.subQuestions : [])]
     newSubQuestions[index] = { ...newSubQuestions[index], [field]: value }
     updateField('subQuestions', newSubQuestions)
   }
 
   const updateSubQuestionOption = (subIndex, optionIndex, value) => {
-    const newSubQuestions = [...question.subQuestions]
+  const newSubQuestions = [...(Array.isArray(question.subQuestions) ? question.subQuestions : [])]
     const newOptions = [...newSubQuestions[subIndex].options]
     newOptions[optionIndex] = value
     newSubQuestions[subIndex] = { ...newSubQuestions[subIndex], options: newOptions }
@@ -32,12 +32,12 @@ const ComprehensionQuestion = ({ question, onChange, onDelete }) => {
   }
 
   const removeSubQuestion = (index) => {
-    const newSubQuestions = question.subQuestions.filter((_, i) => i !== index)
+  const newSubQuestions = (Array.isArray(question.subQuestions) ? question.subQuestions : []).filter((_, i) => i !== index)
     updateField('subQuestions', newSubQuestions)
   }
 
   const moveOption = (subIndex, fromIndex, toIndex) => {
-    const newSubQuestions = [...question.subQuestions]
+  const newSubQuestions = [...(Array.isArray(question.subQuestions) ? question.subQuestions : [])]
     const currentOptions = [...newSubQuestions[subIndex].options]
     
     if (toIndex < 0 || toIndex >= currentOptions.length) return

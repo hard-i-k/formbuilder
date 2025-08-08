@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
 import axios from 'axios'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 import CategorizeQuestion from '../components/questions/CategorizeQuestion'
 import ClozeQuestionDirect from '../components/questions/ClozeQuestionDirect'
 import ComprehensionQuestion from '../components/questions/ComprehensionQuestion'
@@ -27,7 +29,7 @@ const CreateForm = () => {
 
     const fetchForm = async (id) => {
         try {
-            const response = await axios.get(`/api/forms/${id}`)
+            const response = await axios.get(`${API_BASE_URL}/api/forms/${id}`)
             setForm(response.data)
         } catch (error) {
             console.error('Error fetching form:', error)
@@ -193,9 +195,9 @@ const CreateForm = () => {
         try {
             let response
             if (editId) {
-                response = await axios.put(`/api/forms/${editId}`, cleanForm)
+                response = await axios.put(`${API_BASE_URL}/api/forms/${editId}`, cleanForm)
             } else {
-                response = await axios.post('/api/forms', cleanForm)
+                response = await axios.post(`${API_BASE_URL}/api/forms`, cleanForm)
             }
             console.log('Form saved successfully:', response.data)
             navigate('/forms')

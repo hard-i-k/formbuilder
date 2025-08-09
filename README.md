@@ -167,6 +167,3 @@ npm start
 - **Image Upload**: Cloudinary
 - **Development**: Nodemon, ESLint
 
-## License
-
-MIT License

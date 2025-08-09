@@ -38,3 +38,17 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+const SELF_PING_URL = 'https://formbuilder-0ydx.onrender.com'; 
+const SELF_PING_INTERVAL = 30000; 
+function selfPing() {
+  axios.get(SELF_PING_URL)
+    .then(response => {
+      console.log(`Self-ping at ${new Date().toISOString()}: Status ${response.status}`);
+    })
+    .catch(error => {
+      console.error(`Self-ping error at ${new Date().toISOString()}:`, error.message);
+    });
+}
+
+setInterval(selfPing, SELF_PING_INTERVAL);
